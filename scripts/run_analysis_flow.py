@@ -5,18 +5,17 @@ Fluxo de teste de analise: envia imagens de diagrama ao threat-analyzer e exibe 
 Requer a API rodando (ex.: make run ou docker compose up). Por padrao usa
 http://localhost:8001 e as imagens em notebooks/assets/diagram01.png e diagram02.png.
 
-Uso:
-  # Na raiz do projeto (threat-modeling-ai):
-  PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py
+Uso (na raiz do projeto):
+  PYTHONPATH=. python scripts/run_analysis_flow.py
 
   # Com RAG construido antes (recomendado):
   make process-rag-kb
   make run   # em outro terminal
-  PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py
+  PYTHONPATH=. python scripts/run_analysis_flow.py
 
   # Opcoes:
-  PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --base-url http://localhost:8001
-  PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --image notebooks/assets/diagram01.png
+  PYTHONPATH=. python scripts/run_analysis_flow.py --base-url http://localhost:8001
+  PYTHONPATH=. python scripts/run_analysis_flow.py --image notebooks/assets/diagram01.png
 """
 
 import argparse
@@ -25,10 +24,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-# Project root: threat-analyzer/scripts -> threat-analyzer -> project root
+# Project root: scripts/run_analysis_flow.py -> scripts -> project root
 _SCRIPT_DIR = Path(__file__).resolve().parent
-_ANALYZER_DIR = _SCRIPT_DIR.parent
-_PROJECT_ROOT = _ANALYZER_DIR.parent
+_PROJECT_ROOT = _SCRIPT_DIR.parent
 
 DEFAULT_BASE_URL = "http://localhost:8001"
 ANALYZE_PATH = "/api/v1/threat-model/analyze"

@@ -1,6 +1,6 @@
 # Convenções de Testes Unitários
 
-**Contexto para agentes e contributors.** Os testes devem **espelhar a estrutura de pastas do `app/`**, seguindo o padrão do ExpenseIQ (receipt-service, ocr-service, advance-service).
+**Contexto para agentes e contributors.** Os testes devem **espelhar a estrutura de pastas do `app/`** (um arquivo de teste por módulo, na mesma hierarquia).
 
 ## Regra principal
 
@@ -34,4 +34,4 @@ Um único `tests/test_basic.py` na raiz é aceitável para imports e endpoint de
 
 ## Referência
 
-Ver `.cursor/rules/test-structure.mdc` e estrutura em `threat-analyzer/tests/`, `threat-modeling-api/tests/`, e ExpenseIQ `receipt-service/tests/`, `ocr-service/tests/`.
+Ver `.cursor/rules/test-structure.mdc` e estrutura em `threat-analyzer/tests/` e `threat-service/tests/`.

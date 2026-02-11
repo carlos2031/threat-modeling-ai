@@ -1,6 +1,6 @@
 # threat-modeling-shared
 
-Mini biblioteca padronizada para os backends do Threat Modeling AI (threat-analyzer e threat-modeling-api), inspirada no padrão ExpenseIQ.
+Mini biblioteca padronizada para os backends do Threat Modeling AI (threat-analyzer e threat-service).
 
 ## O que fornece
 
@@ -41,8 +41,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://..."
 ```
 
-## Estrutura (padrão ExpenseIQ)
+## Estrutura
 
-- **threat-analyzer** e **threat-modeling-api** usam `create_app` + `BaseSettings`
+- **threat-analyzer** e **threat-service** usam `create_app` + `BaseSettings`
 - Config em `app/core/config.py` estende `BaseSettings`
 - Middlewares e health vêm da shared — nada duplicado

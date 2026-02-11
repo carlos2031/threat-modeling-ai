@@ -54,7 +54,7 @@ Para testar apenas o threat-analyzer (sem frontend/service/celery), pode-se subi
 
 ### 3.1 Script Python (recomendado)
 
-O script `threat-analyzer/scripts/run_analysis_flow.py` envia uma ou mais imagens para o endpoint de analise e imprime um resumo da resposta (model_used, componentes, conexoes, ameacas, risk_level, processing_time).
+O script `scripts/run_analysis_flow.py` (na raiz do projeto) envia uma ou mais imagens para o endpoint de analise e imprime um resumo da resposta (model_used, componentes, conexoes, ameacas, risk_level, processing_time).
 
 **Uso basico (na raiz do projeto):**
 
@@ -64,28 +64,28 @@ O script `threat-analyzer/scripts/run_analysis_flow.py` envia uma ou mais imagen
 make process-rag-kb
 
 # Executar o fluxo com as imagens padrao (notebooks/assets/diagram01.png e diagram02.png)
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py
+PYTHONPATH=. python scripts/run_analysis_flow.py
 ```
 
 **Construir RAG e em seguida testar (sem subir a API pelo script):**
 
 ```bash
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --build-rag
+PYTHONPATH=. python scripts/run_analysis_flow.py --build-rag
 # A API ainda precisa estar rodando (make run).
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py
+PYTHONPATH=. python scripts/run_analysis_flow.py
 ```
 
 **Outras opcoes:**
 
 ```bash
 # URL do analyzer (default: http://localhost:8001)
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --base-url http://localhost:8001
+PYTHONPATH=. python scripts/run_analysis_flow.py --base-url http://localhost:8001
 
 # Imagens especificas (pode repetir --image)
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --image notebooks/assets/diagram01.png --image path/to/outro.png
+PYTHONPATH=. python scripts/run_analysis_flow.py --image notebooks/assets/diagram01.png --image path/to/outro.png
 
 # Salvar a ultima resposta JSON em arquivo
-PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py --save output/analise.json
+PYTHONPATH=. python scripts/run_analysis_flow.py --save output/analise.json
 ```
 
 O script usa a biblioteca `httpx` (ja dependencia do threat-analyzer). A saida esperada inclui linhas como:
@@ -188,7 +188,7 @@ Exemplo de resposta de erro (400):
 1. **Construir RAG:** `make process-rag-kb`
 2. **Subir a stack:** `make run` (ou apenas os servicos do threat-analyzer/redis se aplicavel).
 3. **Aguardar o health:** `curl -s http://localhost:8001/health/` deve retornar 200.
-4. **Rodar o script de fluxo:** `PYTHONPATH=. python threat-analyzer/scripts/run_analysis_flow.py`
+4. **Rodar o script de fluxo:** `PYTHONPATH=. python scripts/run_analysis_flow.py`
 5. **Opcional:** repetir com `curl` usando as imagens em `notebooks/assets/` e inspecionar o JSON completo.
 
 Com isso, o fluxo basico de analise (RAG + envio de imagem + resposta STRIDE/DREAD) fica coberto e documentado.

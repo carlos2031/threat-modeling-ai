@@ -30,7 +30,7 @@ services:
     volumes:
       - ./threat-analyzer:/app
     ports:
-      - "8001:8000"
+      - "8002:8000"
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8000/health/"]
       interval: 30s

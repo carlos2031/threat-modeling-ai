@@ -49,7 +49,7 @@ async def list_analyses(
     controller: Annotated[AnalysisController, Depends(get_controller)] = None,
 ):
     """
-    Lista análises com filtros e paginação (padrão ExpenseIQ).
+    Lista análises com filtros e paginação.
     Query params: code, status, created_at_from, created_at_to (filtros);
     page, size (paginação via fastapi-pagination).
     """

@@ -52,7 +52,8 @@ CMD ["test"]
 FROM base AS runtime
 
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
-    && chown -R appuser:appgroup /app
+    && chown -R appuser:appgroup /app \
+    && chmod +x /app/entrypoint.sh
 USER appuser
 
 LABEL org.opencontainers.image.title="threat-analyzer" \

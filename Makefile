@@ -113,7 +113,7 @@ run-detached:
 # Requer threat-analyzer rodando (ex.: make run em outro terminal). Opcional: make process-rag-kb antes.
 test-analysis-flow:
 	@echo "==> Fluxo de teste de analise (imagens em notebooks/assets/)..."
-	PYTHONPATH=$(PROJECT_ROOT) $(PYTHON) threat-analyzer/scripts/run_analysis_flow.py --base-url http://localhost:8001
+	PYTHONPATH=$(PROJECT_ROOT) $(PYTHON) scripts/run_analysis_flow.py --base-url http://localhost:8001
 
 .PHONY: help setup setup-backend setup-frontend setup-notebooks install-local-llm \
         download-roboflow download-kaggle process-rag-kb train-roboflow train-kaggle \

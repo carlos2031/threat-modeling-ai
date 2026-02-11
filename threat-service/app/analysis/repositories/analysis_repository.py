@@ -16,10 +16,7 @@ from app.config import get_settings
 
 
 def _generate_analysis_code(prefix: str = "TMA", length: int = 8) -> str:
-    """
-    Gera código no mesmo padrão do ExpenseIQ: prefixo + dígitos aleatórios.
-    Ex.: TMA-12345678
-    """
+    """Gera código no formato prefixo + dígitos aleatórios (ex.: TMA-12345678)."""
     random_part = "".join(random.choices(string.digits, k=length))
     return f"{prefix}-{random_part}"
 

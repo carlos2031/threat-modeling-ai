@@ -31,7 +31,7 @@ def repository(mock_db):
 
 class TestAnalysisRepository:
     def test_next_code_format(self, repository, mock_db):
-        """Generated code follows ExpenseIQ pattern: TMA- + 8 digits."""
+        """Generated code has format TMA- + 8 digits."""
         mock_db.execute.return_value.scalars().first.return_value = None
         code = repository._next_code()
         assert code.startswith("TMA-")
