@@ -36,22 +36,10 @@ ENV/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
-# Dataset e saidas de treino (tudo em notebooks/)
-dataset/
-dataset_tmp/
-notebooks/dataset/
-notebooks/dataset_tmp/
-outputs/
-notebooks/outputs/
-
-# Model weights (exceto best.pt de cada fonte em notebooks/models/)
-model/weights/
-model/runs/
+# Model weights
 *.pt
 *.pth
 *.onnx
-!notebooks/models/kaggle/best.pt
-!notebooks/models/roboflow/best.pt
 
 # Logs
 *.log
@@ -103,3 +91,6 @@ threat-analyzer/app/rag_data/*
 .langchain_cache/
 .langchain_cache.db
 *.cache.db
+
+# Celery beat schedule (runtime artifact)
+threat-service/celerybeat-schedule

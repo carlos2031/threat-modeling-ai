@@ -2,10 +2,8 @@
  * API service for threat modeling - threat-modeling-api (orchestrator).
  */
 
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import type {
-  AnalysisResponse,
-  AnalysisError,
   AnalysisCreateResponse,
   AnalysisListItem,
   AnalysisDetailResponse,
@@ -31,11 +29,20 @@ export async function createAnalysis(file: File): Promise<AnalysisCreateResponse
   return response.data;
 }
 
-// List analyses
+// List analyses (paginated response from fastapi-pagination)
+interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+}
+
 export async function listAnalyses(status?: AnalysisStatus): Promise<AnalysisListItem[]> {
-  const params = status ? { status_filter: status } : {};
-  const response = await api.get<AnalysisListItem[]>('/analyses', { params });
-  return Array.isArray(response.data) ? response.data : [];
+  const params: Record<string, string | number> = { size: 100 };
+  if (status) params.status = status;
+  const response = await api.get<PaginatedResponse<AnalysisListItem>>('/analyses', { params });
+  return response.data?.items ?? [];
 }
 
 // Get analysis detail
@@ -65,58 +72,6 @@ export async function markNotificationRead(id: string): Promise<void> {
   await api.post(`/notifications/${id}/read`);
 }
 
-// Legacy sync analyze (calls threat-analyzer directly - kept for fallback or dev)
-export interface AnalyzeResult {
-  success: true;
-  data: AnalysisResponse;
-}
-
-export interface AnalyzeErrorResult {
-  success: false;
-  error: string;
-  details?: Record<string, unknown>;
-}
-
-export type AnalyzeResponse = AnalyzeResult | AnalyzeErrorResult;
-
-export async function analyzeDiagramSync(
-  file: File,
-  confidence?: number,
-  iou?: number
-): Promise<AnalyzeResponse> {
-  try {
-    const formData = new FormData();
-    formData.append('file', file);
-    if (confidence !== undefined) formData.append('confidence', String(confidence));
-    if (iou !== undefined) formData.append('iou', String(iou));
-
-    const response = await api.post<AnalysisResponse>(
-      '/threat-model/analyze',
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 300000 }
-    );
-    return { success: true, data: response.data };
-  } catch (err) {
-    const error = err as AxiosError<AnalysisError>;
-    if (error.response?.data) {
-      return {
-        success: false,
-        error: error.response.data.error || 'Analysis failed',
-        details: error.response.data.details,
-      };
-    }
-    if (error.code === 'ECONNABORTED') {
-      return {
-        success: false,
-        error: 'Request timed out. The analysis is taking longer than expected.',
-      };
-    }
-    return {
-      success: false,
-      error: error.message || 'An unexpected error occurred',
-    };
-  }
-}
 
 export async function checkHealth(): Promise<boolean> {
   try {

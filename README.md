@@ -1,44 +1,98 @@
-# Threat Modeling AI — Modelagem de Ameaças Automatizada
+<p align="center">
+  <img src="assets/banner.svg" alt="CloudSec AI — Threat Modeling" width="100%"/>
+</p>
 
-Sistema de análise de ameaças em diagramas de arquitetura usando **pipeline LLM**: extração de componentes e conexões (visão), análise STRIDE com RAG e priorização DREAD.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/React-18-61dafb?logo=react&logoColor=white" alt="React"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ed?logo=docker&logoColor=white" alt="Docker"/>
+  <img src="https://img.shields.io/badge/LLM-Gemini%20%7C%20OpenAI-blueviolet" alt="LLM"/>
+  <img src="https://img.shields.io/badge/STRIDE-DREAD-red" alt="STRIDE/DREAD"/>
+  <img src="https://img.shields.io/badge/RAG-ChromaDB-orange" alt="RAG"/>
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT"/>
+</p>
 
-## Visão geral
+<p align="center">
+  Análise automatizada de ameaças em diagramas de arquitetura cloud usando LLMs multimodais, metodologia <b>STRIDE</b> e priorização <b>DREAD</b>.
+</p>
 
-O sistema recebe uma **imagem de diagrama** (PNG, JPEG, WebP, GIF), identifica componentes e conexões via **LLM com visão** e gera um **relatório de ameaças STRIDE** com pontuação **DREAD**, incluindo mitigações.
+---
 
-**Pipeline em produção (100% LLM):**
+<p align="center">
+  <img src="assets/screenshots/04-analysis-detail.webp" alt="Tela de análise de ameaças" width="90%"/>
+</p>
 
-- **DiagramAgent** — LLM vision extrai componentes e conexões do diagrama.
-- **StrideAgent** — Ameaças STRIDE com base de conhecimento RAG (ChromaDB).
-- **DreadAgent** — Pontuação DREAD das ameaças.
+---
 
-**Provedores (fallback em ordem):** Gemini → OpenAI → Ollama. Validação prévia (guardrail) rejeita imagens que não forem diagramas de arquitetura.
+## Visão Geral
 
-## Escopo atual
+O **CloudSec AI** recebe uma imagem de diagrama de arquitetura, identifica componentes e conexões via **LLM com visão** e gera um relatório de ameaças **STRIDE** com pontuação **DREAD**, incluindo mitigações práticas.
 
-- **Backend:** threat-analyzer (pipeline LLM STRIDE/DREAD) e threat-service (API principal, upload assíncrono, Celery, PostgreSQL).
-- **Frontend:** threat-frontend — upload, listagem de análises, detalhe com polling e notificações.
-- **RAG:** Base de conhecimento em `threat-analyzer/app/rag_data/` (ChromaDB).
+### Pipeline (100% LLM)
 
-Documentação de requisitos, design e decisões: **docs/specs/** (Spec Driven). Explicação do sistema (fluxo, pipeline, agentes, LLM, guardrail): **docs/README.md**.
+```
+Diagrama → Guardrail → DiagramAgent → StrideAgent → DreadAgent → Relatório
+            (valida)    (componentes)   (ameaças)     (scores)
+```
 
-## Estrutura do projeto
+| Etapa | Agente | Descrição |
+|-------|--------|-----------|
+| 1 | **Guardrail** | Valida se a imagem é um diagrama de arquitetura |
+| 2 | **DiagramAgent** | Extrai componentes, conexões e trust boundaries (LLM Vision) |
+| 3 | **StrideAgent** | Identifica ameaças STRIDE por componente com RAG (ChromaDB) |
+| 4 | **DreadAgent** | Pontua cada ameaça (Damage, Reproducibility, Exploitability, Affected, Discoverability) |
+
+**Provedores LLM (fallback automático):** Gemini → OpenAI → Ollama
+
+## Funcionalidades
+
+- **Upload** de diagramas de arquitetura (PNG, JPEG, WebP)
+- **Análise assíncrona** com processamento em background (Celery)
+- **Relatório STRIDE/DREAD** com ameaças, mitigações e scores detalhados
+- **Notificações** em tempo real quando análises são concluídas
+- **Listagem** de todas as análises com filtros e thumbnails
+- **Interface moderna** com dark theme, responsiva e profissional
+
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/screenshots/01-homepage.webp" width="280"/><br/><sub>Tela Inicial</sub></td>
+    <td align="center"><img src="assets/screenshots/03-analyses-list.webp" width="280"/><br/><sub>Lista de Análises</sub></td>
+    <td align="center"><img src="assets/screenshots/04-analysis-detail.webp" width="280"/><br/><sub>Relatório de Ameaças</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screenshots/02-upload-preview.webp" width="280"/><br/><sub>Upload com Preview</sub></td>
+    <td align="center"><img src="assets/screenshots/05-notifications.webp" width="280"/><br/><sub>Notificações</sub></td>
+    <td align="center"><img src="assets/screenshots/08-critical-threat.webp" width="280"/><br/><sub>Ameaça CRITICAL</sub></td>
+  </tr>
+</table>
+
+### Vídeos de demonstração
+
+- [Análise de arquitetura AWS (SEI/SIP)](assets/videos/analysis-aws-architecture.mp4) — 17 componentes, 27 ameaças, risco HIGH
+- [Análise de arquitetura Azure (API Management)](assets/videos/analysis-azure-api-management.mp4) — 9 componentes, 19 ameaças, risco HIGH
+
+## Estrutura do Projeto
 
 ```
 threat-modeling-ai/
-├── threat-analyzer/       # Pipeline LLM (Diagram → STRIDE → DREAD), RAG
-├── threat-service/        # Orquestrador: API, Celery, PostgreSQL
-├── threat-frontend/       # UI React (Vite, Tailwind)
-├── threat-modeling-shared/# Código compartilhado
-├── configs/               # .env (não commitado; ver .env.example)
-├── docs/                  # Documentação (specs + explicativo + Postman)
-├── scripts/               # install_local_llm.sh, run_analysis_flow.py
+├── threat-analyzer/         # Pipeline LLM (Diagram → STRIDE → DREAD), RAG
+├── threat-service/          # Orquestrador: API REST, Celery, banco relacional
+├── threat-frontend/         # UI React (Vite, Tailwind, Framer Motion)
+├── threat-modeling-shared/  # Código compartilhado (FastAPI utilities)
+├── configs/                 # .env (não commitado; ver .env.example)
+├── docs/                    # Documentação (specs, manual, Postman)
+│   ├── manual.md            # Manual do usuário com screenshots
+│   ├── README.md            # Documentação técnica (pipeline, agentes, LLM)
+│   └── specs/               # Especificações (Spec Driven)
+├── assets/                  # Screenshots, vídeos e banner
+├── scripts/                 # Scripts auxiliares
 └── docker-compose.yml
 ```
 
 ### Arquitetura (containers)
-
-Fluxo com `make run`: o frontend consome apenas a API do threat-service; o processamento assíncrono é feito pelo Celery, que chama o threat-analyzer; o analyzer usa RAG (ChromaDB) e LLMs (Gemini, OpenAI ou Ollama).
 
 ```mermaid
 flowchart TB
@@ -61,12 +115,8 @@ flowchart TB
   end
 
   subgraph Data["Dados"]
-    PG[(postgres :5432)]
-    RD[(redis :6379)]
-  end
-
-  subgraph LLM["LLM (opcional)"]
-    Ollama[ollama :11434]
+    PG[(PG Database :5432)]
+    RD[(Redis :6379)]
   end
 
   Browser --> FE
@@ -77,69 +127,59 @@ flowchart TB
   CW --> RD
   CW --> PG
   CW --> TA
-  TA -.-> Ollama
 ```
 
-| Serviço           | Porta  | Descrição                                              |
-|-------------------|--------|--------------------------------------------------------|
-| threat-frontend   | 80     | UI React; upload, listagem, detalhe, notificações     |
-| threat-service    | 8000   | API REST; análises, uploads, disparo do processamento |
-| threat-analyzer   | 8002   | Pipeline LLM (Diagram → STRIDE → DREAD), RAG          |
-| celery-worker     | —      | Processa fila; chama threat-analyzer                   |
-| celery-beat       | —      | Agendador de tarefas periódicas                        |
-| postgres          | 5432   | Persistência (análises, notificações)                 |
-| redis             | 6379   | Broker Celery                                          |
-| ollama            | 11434  | LLM local (opcional; fallback quando configurado)      |
+| Serviço | Porta | Descrição |
+|---------|-------|-----------|
+| threat-frontend | 80 (prod) / 5173 (dev) | UI React |
+| threat-service | 8000 | API REST, upload, análises, notificações |
+| threat-analyzer | 8002 | Pipeline LLM (STRIDE/DREAD), RAG |
+| celery-worker | — | Processamento assíncrono |
+| celery-beat | — | Agendador de tarefas |
+| PG (database) | 5432 | Persistência |
+| Redis | 6379 | Broker Celery e cache |
 
-## Como usar
+## Como Usar
 
-### 1. Configuração
+### 1. Pré-requisitos
 
-Crie `configs/.env` a partir de `configs/.env.example` e defina credenciais dos provedores de LLM (Gemini, OpenAI) e/ou use Ollama local. **Não commite** `configs/.env`.
+- Docker e Docker Compose
+- Chaves de API: `GOOGLE_API_KEY` (Gemini) e/ou `OPENAI_API_KEY`
 
-### 2. Setup
-
-| Comando               | Descrição                                      |
-| --------------------- | ---------------------------------------------- |
-| `make setup`          | Backend + frontend                             |
-| `make setup-backend`   | Apenas backend (threat-analyzer + threat-service) |
-| `make setup-frontend` | Apenas frontend (`npm install` em threat-frontend) |
-
-Para rodar a aplicação via Docker, basta `make setup-backend` e `make setup-frontend` se for build local; o uso típico é **apenas Docker** (próximo passo).
-
-### 3. Subir a aplicação (Docker)
+### 2. Configuração
 
 ```bash
-make run          # Stack com logs no terminal
+cp configs/.env.example configs/.env
+# Edite configs/.env com suas chaves de API
+```
+
+### 3. Subir a aplicação
+
+```bash
+make run          # Stack com logs
 make run-detached # Stack em background
 ```
 
-Requer `configs/.env` configurado. Para usar **Ollama** local (modelos vision):
+Acesse: **http://localhost** (frontend) ou **http://localhost:8000** (API).
+
+### 4. Setup para desenvolvimento local
 
 ```bash
-make install-local-llm   # Sobe Ollama, baixa modelos e verifica
+make setup            # Backend + frontend
+make setup-backend    # Apenas backend (.venv)
+make setup-frontend   # Apenas frontend (npm install)
 ```
 
-### 4. Testes e lint
+Frontend em modo dev: `cd threat-frontend && npm run dev` (porta 5173, proxy para API em 8000).
 
-Os alvos de test e lint ficam nos Makefiles de cada serviço:
-
-```bash
-make -C threat-analyzer test
-make -C threat-analyzer lint
-make -C threat-service test
-make -C threat-service lint
-make -C threat-frontend lint
-```
-
-**threat-service:** os testes precisam de PostgreSQL. Crie o banco de teste (`createdb threat_modeling_test`) ou defina `TEST_DATABASE_URL`.
-
-### 5. Teste de fluxo
-
-Com a stack rodando (ex.: `make run`), envie uma imagem ao threat-analyzer:
+### 5. Testes e lint
 
 ```bash
-make test-analysis-flow IMAGE=caminho/para/diagrama.png
+make -C threat-analyzer test    # Testes do analyzer
+make -C threat-analyzer lint    # Lint (ruff)
+make -C threat-service test     # Testes do service
+make -C threat-service lint     # Lint (ruff)
+make -C threat-frontend lint    # Lint (eslint)
 ```
 
 ### 6. Pre-commit
@@ -148,20 +188,24 @@ make test-analysis-flow IMAGE=caminho/para/diagrama.png
 pip install pre-commit && pre-commit install
 ```
 
-No commit é executado `scripts/pre_commit.sh` (lint em threat-modeling-shared e nos três serviços; testes em threat-analyzer e threat-service).
-
 ## Documentação
 
-- **docs/README.md** — Índice da documentação (explicativo, specs, Postman).
-- **docs/specs/** — Contexto, requisitos, design, ADRs, runbooks (Spec Driven).
-- **docs/README.md** — Explicação unificada: fluxo de análise, ThreatModelService, módulo LLM, agentes (STRIDE, Diagram, DREAD), guardrail.
-- **docs/Postman Collections/** — Coleções e ambiente para testes da API.
+| Recurso | Descrição |
+|---------|-----------|
+| [Manual do Usuário](docs/manual.md) | Guia com screenshots de todas as telas |
+| [Documentação Técnica](docs/README.md) | Pipeline, agentes, módulo LLM, guardrail |
+| [Especificações](docs/specs/) | Contexto, requisitos, design, ADRs (Spec Driven) |
+| [Postman Collections](docs/Postman%20Collections/) | Coleções para teste da API |
 
 ## Tecnologias
 
-- **Backend:** FastAPI, Celery, Redis, PostgreSQL, LangChain, ChromaDB (RAG).
-- **Frontend:** React, Vite, Tailwind, Framer Motion.
-- **LLM:** Gemini, OpenAI, Ollama (vision); fallback configurável.
+| Categoria | Stack |
+|-----------|-------|
+| **Backend** | FastAPI · Celery · Redis · PG · SQLAlchemy |
+| **Frontend** | React 18 · Vite · Tailwind CSS · Framer Motion |
+| **LLM** | LangChain · Gemini · OpenAI · Ollama (fallback) |
+| **RAG** | ChromaDB · Docling |
+| **Infra** | Docker Compose · Nginx |
 
 ## Licença
 
