@@ -62,3 +62,9 @@ PYTHONPATH=threat-service:threat-modeling-shared .venv/bin/python -m pytest thre
 ### Frontend lint
 
 ESLint is referenced in `package.json` scripts but no config file (`.eslintrc*` or `eslint.config.*`) exists and `eslint` is not a devDependency. Frontend lint is non-functional until this is set up.
+
+### Analysis pipeline
+
+The analyses list API returns a paginated response (`{ items, total, page, size, pages }` via `fastapi-pagination`). The frontend's `listAnalyses` function must extract the `items` array.
+
+The full analysis flow is: upload → `EM_ABERTO` → celery-beat triggers `scan_pending_analyses` every minute → marks `PROCESSANDO` → celery-worker calls threat-analyzer → marks `ANALISADO` → creates notification. To manually trigger processing: `sudo docker exec workspace-celery-worker-1 celery -A app.celery_app call app.analysis.tasks.analysis_tasks.scan_pending_analyses`.
