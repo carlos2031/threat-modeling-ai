@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --accent: #6366f1;
 }
 
@@ -15,22 +15,42 @@ body {
   background: var(--bg-gradient);
   color: #f8fafc;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl;
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 shadow-xl;
   }
 
   .btn-primary {
-    @apply bg-indigo-500 text-white border-none py-3 px-6 rounded-lg cursor-pointer transition-all duration-200;
+    @apply bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2.5 px-5 rounded-xl cursor-pointer transition-all duration-200 text-sm;
   }
 
   .btn-primary:hover:not(:disabled) {
-    @apply bg-indigo-600 -translate-y-0.5;
+    @apply shadow-lg shadow-indigo-500/25 -translate-y-px;
   }
 
   .btn-primary:disabled {
-    @apply opacity-50 cursor-not-allowed;
+    @apply opacity-40 cursor-not-allowed hover:translate-y-0 hover:shadow-none;
   }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

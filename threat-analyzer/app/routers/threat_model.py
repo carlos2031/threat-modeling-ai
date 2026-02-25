@@ -34,6 +34,4 @@ async def analyze_diagram(
     return await ThreatAnalysisController(service, settings).analyze(
         contents,
         content_type=request.file.content_type,
-        confidence=request.confidence,
-        iou=request.iou,
     )
