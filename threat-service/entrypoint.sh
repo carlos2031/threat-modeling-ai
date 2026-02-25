@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+# Garante que /app/uploads existe e é gravável pelo appuser (volume montado)
+mkdir -p /app/uploads
+chown -R appuser:appgroup /app/uploads 2>/dev/null || true
+
 cli_help() {
   cli_name=${0##*/}
   echo "
@@ -24,10 +28,10 @@ case "${1:-runserver}" in
   runserver)
     PORT=${PORT:-8000}
     echo "Starting threat-service on port $PORT..."
-    exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
+    exec runuser -u appuser -- uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
     ;;
   test)
-    exec pytest tests/ -v --tb=short --cov=app --cov-report=term-missing --cov-config=.coveragerc
+    exec runuser -u appuser -- pytest tests/ -v --tb=short --cov=app --cov-report=term-missing --cov-config=.coveragerc
     ;;
   health)
     curl -sf "http://localhost:${PORT:-8000}/health" || exit 1

@@ -14,6 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
+    util-linux \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -53,7 +54,7 @@ FROM base AS runtime
 
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser \
     && chown -R appuser:appgroup /app
-USER appuser
+# Entrypoint roda como root para chown em /app/uploads (volume), depois runuser para appuser
 
 LABEL org.opencontainers.image.title="threat-service" \
       org.opencontainers.image.description="Threat modeling API (orchestrator, Celery)" \
