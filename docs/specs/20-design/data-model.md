@@ -1,6 +1,6 @@
 # Modelo de dados — Threat Modeling AI
 
-Modelo de persistência do orquestrador (PostgreSQL). Definido em código em `threat-modeling-api/app/analysis/models/` e `threat-modeling-api/app/notification/models/`.
+Modelo de persistência do orquestrador (PostgreSQL). Definido em código em `threat-service/app/analysis/models/` e `threat-service/app/notification/models/`.
 
 ---
 

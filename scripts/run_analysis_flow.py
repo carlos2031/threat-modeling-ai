@@ -2,25 +2,19 @@
 """
 Fluxo de teste de analise: envia imagens de diagrama ao threat-analyzer e exibe a resposta.
 
-Requer a API rodando (ex.: make run ou docker compose up). Por padrao usa
-http://localhost:8001 e as imagens em notebooks/assets/diagram01.png e diagram02.png.
+Requer o threat-analyzer rodando (ex.: make run). Por padrao usa http://localhost:8001.
 
 Uso (na raiz do projeto):
-  PYTHONPATH=. python scripts/run_analysis_flow.py
-
-  # Com RAG construido antes (recomendado):
-  make process-rag-kb
   make run   # em outro terminal
-  PYTHONPATH=. python scripts/run_analysis_flow.py
+  make test-analysis-flow IMAGE=caminho/para/diagrama.png
 
-  # Opcoes:
-  PYTHONPATH=. python scripts/run_analysis_flow.py --base-url http://localhost:8001
-  PYTHONPATH=. python scripts/run_analysis_flow.py --image notebooks/assets/diagram01.png
+  # Ou chamando o script diretamente (uma ou mais imagens):
+  PYTHONPATH=. python scripts/run_analysis_flow.py --image path/to/diagram.png
+  PYTHONPATH=. python scripts/run_analysis_flow.py --base-url http://localhost:8001 --image img1.png --image img2.png
 """
 
 import argparse
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -30,29 +24,6 @@ _PROJECT_ROOT = _SCRIPT_DIR.parent
 
 DEFAULT_BASE_URL = "http://localhost:8001"
 ANALYZE_PATH = "/api/v1/threat-model/analyze"
-DEFAULT_IMAGES = [
-    _PROJECT_ROOT / "notebooks" / "assets" / "diagram01.png",
-    _PROJECT_ROOT / "notebooks" / "assets" / "diagram02.png",
-]
-
-
-def build_rag() -> bool:
-    """Roda o processamento da base RAG (output -> threat-analyzer/app/rag_data)."""
-    try:
-        subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "notebooks.scripts.rag_processing.process_knowledge_base",
-            ],
-            cwd=str(_PROJECT_ROOT),
-            env={**__import__("os").environ, "PYTHONPATH": str(_PROJECT_ROOT)},
-            check=True,
-        )
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Erro ao construir RAG: {e}", file=sys.stderr)
-        return False
 
 
 def analyze_image(base_url: str, image_path: Path) -> dict | None:
@@ -110,11 +81,6 @@ def main() -> int:
         description="Testa o fluxo de analise enviando imagens ao threat-analyzer."
     )
     parser.add_argument(
-        "--build-rag",
-        action="store_true",
-        help="Executar processamento da base RAG antes dos testes (make process-rag-kb).",
-    )
-    parser.add_argument(
         "--base-url",
         default=DEFAULT_BASE_URL,
         help=f"URL base do threat-analyzer (default: {DEFAULT_BASE_URL}).",
@@ -125,7 +91,7 @@ def main() -> int:
         action="append",
         type=Path,
         default=None,
-        help="Caminho para imagem de diagrama (pode repetir). Default: diagram01.png e diagram02.png em notebooks/assets.",
+        help="Caminho para imagem de diagrama (pode repetir). Obrigatorio ao menos um.",
     )
     parser.add_argument(
         "--save",
@@ -135,16 +101,15 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    if args.build_rag:
-        print("==> Construindo base RAG...")
-        if not build_rag():
-            return 1
-        print("==> RAG pronto.\n")
+    images = args.images if args.images else []
+    if not images:
+        print("Passe ao menos uma imagem com --image <caminho>.", file=sys.stderr)
+        return 1
 
-    images = args.images if args.images else DEFAULT_IMAGES
+    images = [p if p.is_absolute() else _PROJECT_ROOT / p for p in images]
     last_response = None
-    for i, img_path in enumerate(images):
-        path = img_path if img_path.is_absolute() else _PROJECT_ROOT / img_path
+    for img_path in images:
+        path = img_path.resolve()
         print(f"==> Enviando {path.name} para {args.base_url}{ANALYZE_PATH}")
         resp = analyze_image(args.base_url, path)
         if resp is None:
