@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileImage, Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { listAnalyses, getAnalysisImageUrl } from '../services/threatModelingService';
 import type { AnalysisListItem, AnalysisStatus } from '../types/analysis';
 import { RISK_LEVEL_CONFIG } from '../constants/riskLevels';

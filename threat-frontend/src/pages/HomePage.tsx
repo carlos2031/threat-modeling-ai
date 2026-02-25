@@ -2,8 +2,7 @@ import { UploadSection, ErrorMessage, Sidebar } from '../components';
 import { useCreateAnalysis } from '../hooks/useCreateAnalysis';
 
 export function HomePage() {
-  const { file, loading, error, setFile, createAnalysis, sidebarOpen, setSidebarOpen } =
-    useCreateAnalysis();
+  const { file, loading, error, setFile, createAnalysis } = useCreateAnalysis();
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">

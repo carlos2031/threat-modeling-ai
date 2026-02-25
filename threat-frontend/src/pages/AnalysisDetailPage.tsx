@@ -7,7 +7,7 @@ import {
   getAnalysisLogs,
 } from '../services/threatModelingService';
 import { ResultsSection } from '../components';
-import type { AnalysisDetailResponse, AnalysisStatus } from '../types/analysis';
+import type { AnalysisDetailResponse } from '../types/analysis';
 
 const POLL_INTERVAL_MS = 5000;
 

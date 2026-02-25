@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { AnalysisResponse } from '../types/analysis';
-import { analyzeDiagram } from '../services/threatModelingService';
+import { analyzeDiagramSync } from '../services/threatModelingService';
 
 export interface UseThreatAnalysisState {
   file: File | null;
@@ -42,7 +42,7 @@ export function useThreatAnalysis(): UseThreatAnalysisReturn {
     setError(null);
 
     try {
-      const result = await analyzeDiagram(file, confidence, iou);
+      const result = await analyzeDiagramSync(file, confidence, iou);
 
       if (result.success) {
         setAnalysis(result.data);

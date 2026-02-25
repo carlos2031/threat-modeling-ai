@@ -8,7 +8,7 @@ interface HeaderProps {
   onToggleSidebar?: () => void;
 }
 
-export function Header({ sidebarOpen, onToggleSidebar }: HeaderProps) {
+export function Header({ onToggleSidebar }: HeaderProps) {
   const { data } = useNotifications();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
