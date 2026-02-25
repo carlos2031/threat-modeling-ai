@@ -89,7 +89,7 @@ Tipos de imagem permitidos: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
 O pipeline STRIDE usa uma base de conhecimento (RAG) para enriquecer as respostas. A pasta fica **dentro da app**: `app/rag_data/` (no container: `/app/app/rag_data`).
 
 - **Repositório:** A pasta `app/rag_data/` é versionada com `.gitkeep`; o **conteúdo** (arquivos .md da base) não é commitado.
-- **Como preencher:** Na raiz do projeto, rode `make process-rag-kb`. O script processa `notebooks/knowledge-base/input_files/` (Docling converte PDF/DOCX/etc. em Markdown), gera `notebooks/knowledge-base/output_files/` e **copia automaticamente** para `threat-analyzer/app/rag_data/` (stride/ e dread/). Assim o analyzer já encontra a base ao subir (local ou Docker).
+- **Como preencher:** Coloque os arquivos .md da base (stride/ e dread/) em `app/rag_data/`. O conteúdo não é versionado; a pasta tem `.gitkeep`. Quem tiver o contexto privado (`private-context/notebooks/`) pode usar os scripts de processamento RAG que estavam nos notebooks (agora fora do repositório).
 - Opcional: variável `KNOWLEDGE_BASE_PATH` para sobrescrever o path. Se a pasta não existir ou estiver vazia, o RAG não é carregado (path retorna `None` no config).
 
 ## Execução

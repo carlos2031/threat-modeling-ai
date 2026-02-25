@@ -6,10 +6,10 @@ cd "$(dirname "$0")/.."
 echo "==> Lint (threat-modeling-shared)..."
 ruff check threat-modeling-shared/ --fix
 ruff format threat-modeling-shared/
-echo "==> Lint (threat-analyzer, threat-modeling-api, frontend)..."
+echo "==> Lint (threat-analyzer, threat-service, threat-frontend)..."
 make -C threat-analyzer lint
-make -C threat-modeling-api lint
-make -C frontend lint
-echo "==> Test (threat-analyzer, threat-modeling-api)..."
+make -C threat-service lint
+make -C threat-frontend lint
+echo "==> Test (threat-analyzer, threat-service)..."
 make -C threat-analyzer test || true
-make -C threat-modeling-api test || true
+make -C threat-service test || true
