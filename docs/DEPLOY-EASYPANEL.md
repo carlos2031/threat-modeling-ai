@@ -96,18 +96,20 @@ CORS_ORIGINS=https://seu-dominio.com,http://localhost:80
 
 ### Passo 6: Acessar o frontend (porta e domínio)
 
-**Porta do frontend:** O nginx dentro do container escuta na **porta 80**. O compose expõe a **porta 8888** no host.
+**Porta do frontend:** O nginx dentro do container escuta na **porta 80**. O compose expõe a **porta 13080** no host (configurável via `FRONTEND_PORT` no `.env`).
 
 #### Opção A: Acesso direto por IP e porta
 
 Após o deploy, acesse:
 ```
-http://SEU_IP_OU_DOMINIO:8888
+http://SEU_IP_OU_DOMINIO:13080
 ```
 
-Ex.: `http://192.168.1.100:8888` ou `http://meuservidor.com:8888`
+Ex.: `http://192.168.1.100:13080` ou `http://meuservidor.com:13080`
 
-**Firewall:** Libere a porta 8888 no firewall do servidor (UFW, iptables ou painel do provedor).
+**Porta em conflito?** Defina `FRONTEND_PORT=9999` (ou outra livre) no `.env` e faça redeploy.
+
+**Firewall:** Libere a porta configurada no firewall do servidor (UFW, iptables ou painel do provedor).
 
 #### Opção B: Configurar domínio com HTTPS (EasyPanel)
 
@@ -121,7 +123,7 @@ Ex.: `http://192.168.1.100:8888` ou `http://meuservidor.com:8888`
 
 #### Opção C: Usando apenas Dockge (sem EasyPanel)
 
-Configure um proxy reverso (Nginx, Traefik ou Caddy) apontando para `localhost:8888` ou para o container `threat-frontend` na rede Docker.
+Configure um proxy reverso (Nginx, Traefik ou Caddy) apontando para `localhost:13080` ou para o container `threat-frontend` na rede Docker.
 
 ### Passo 7: (Opcional) Ollama e modelos de visão
 
@@ -191,6 +193,13 @@ O `threat-frontend` usa nginx e faz proxy de `/api/v1/` para `http://threat-serv
 
 - Verifique `REDIS_URL` e `ANALYZER_URL`.
 - Confira os logs do `celery-worker` e do `threat-analyzer`.
+
+### Frontend não acessível (porta/domínio)
+
+1. **Porta em conflito:** Defina `FRONTEND_PORT` no `.env` (ex.: `FRONTEND_PORT=19999`) e faça redeploy.
+2. **Firewall:** Libere a porta no servidor: `sudo ufw allow 13080` (ou a porta configurada).
+3. **EasyPanel:** No painel, vá ao serviço **threat-frontend** → **Domains** → adicione seu domínio e configure a porta do proxy como **80**.
+4. **Teste local:** No servidor, execute `curl -I http://localhost:13080` para verificar se o container responde.
 
 ### Build falha no threat-analyzer/threat-service
 

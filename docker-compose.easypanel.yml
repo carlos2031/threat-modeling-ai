@@ -6,6 +6,7 @@
 #
 # Variáveis obrigatórias: POSTGRES_PASSWORD, DATABASE_URL, REDIS_URL
 # Para LLM: GOOGLE_API_KEY e/ou OPENAI_API_KEY (ou use Ollama local)
+# Opcional: FRONTEND_PORT=13080 (porta no host; padrão 13080 para evitar conflitos)
 
 services:
   postgres:
@@ -108,7 +109,10 @@ services:
       dockerfile: threat-frontend/Dockerfile
       target: runtime
     ports:
-      - "8888:80"  # Acesso direto: http://IP:8888 (ou configure domínio no EasyPanel)
+      - "${FRONTEND_PORT:-13080}:80"  # Acesso: http://IP:13080 (ou FRONTEND_PORT no .env)
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.threat-frontend.loadbalancer.server.port=80
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 30s
