@@ -69,7 +69,7 @@ class AnalysisResponse(BaseSchema):
         ...,
         ge=0,
         le=10,
-        description="Overall risk score from 0 (low) to 10 (critical), typically derived from DREAD.",
+        description="Overall risk score from 0 (low) to 10 (critical), derived from DREAD.",
     )
     risk_level: RiskLevel = Field(
         ...,

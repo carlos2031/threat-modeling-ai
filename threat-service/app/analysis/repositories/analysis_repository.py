@@ -211,3 +211,18 @@ class AnalysisRepository:
         if not full_path.exists():
             return None
         return full_path
+
+    def delete(self, analysis_id: uuid.UUID) -> bool:
+        """Remove a análise do banco e o arquivo de imagem do disco. Retorna True se existia e foi removida."""
+        analysis = self._db.get(Analysis, analysis_id)
+        if not analysis:
+            return False
+        image_path = self._upload_dir / analysis.image_path
+        if image_path.exists():
+            try:
+                image_path.unlink()
+            except OSError:
+                pass
+        self._db.delete(analysis)
+        self._db.commit()
+        return True

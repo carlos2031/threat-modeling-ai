@@ -1,3 +1,6 @@
+# Uploads (bind mount para containers)
+data/uploads/
+
 # Python
 __pycache__/
 .pytest_cache/

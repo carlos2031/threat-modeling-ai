@@ -70,7 +70,6 @@ export function UploadSection({
               ? 'border-indigo-500/40 bg-indigo-500/5'
               : 'border-slate-600 hover:border-indigo-500/50 hover:bg-white/[0.02]'
         }`}
-        onClick={() => fileInputRef.current?.click()}
         onDrop={handleDrop}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
@@ -78,12 +77,14 @@ export function UploadSection({
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
       >
+        {/* Input sobreposto à área clicável para abrir o diálogo nativo em todos os navegadores */}
         <input
           ref={fileInputRef}
           type="file"
-          className="hidden"
           accept="image/*"
           onChange={handleFileChange}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+          aria-label="Selecionar imagem do diagrama"
         />
 
         {file ? (

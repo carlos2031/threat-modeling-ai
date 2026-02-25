@@ -98,3 +98,16 @@ async def get_analysis_logs(
             detail="Analysis not found",
         )
     return {"logs": logs}
+
+
+@router.delete(
+    "/{analysis_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete analysis",
+)
+async def delete_analysis(
+    analysis_id: uuid.UUID,
+    controller: Annotated[AnalysisController, Depends(get_controller)] = None,
+):
+    """Remove a análise (interrompe processamento se em andamento e remove do banco). Ação irreversível."""
+    controller.delete_analysis(analysis_id)

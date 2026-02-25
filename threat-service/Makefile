@@ -31,7 +31,7 @@ run: build ## Rodar container (porta 8000)
 
 ## Local (venv na raiz ou sistema)
 test: ## Testes locais (PYTHONPATH e shared no venv da raiz)
-	cd $(ROOT) && PYTHONPATH=threat-modeling-api:threat-modeling-shared $(PYTHON) -m pytest threat-service/tests/ \
+	cd $(ROOT) && PYTHONPATH=threat-service:threat-modeling-shared $(PYTHON) -m pytest threat-service/tests/ \
 		--cov=app --cov-report=term-missing --cov-config=threat-service/.coveragerc -v --tb=short
 
 lint: ## Ruff check + format

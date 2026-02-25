@@ -62,6 +62,11 @@ export async function getAnalysisLogs(id: string): Promise<{ logs: string }> {
   return response.data;
 }
 
+// Delete analysis (irreversible; stops processing if running)
+export async function deleteAnalysis(id: string): Promise<void> {
+  await api.delete(`/analyses/${id}`);
+}
+
 // Notifications
 export async function getUnreadNotifications(): Promise<NotificationsUnreadResponse> {
   const response = await api.get<NotificationsUnreadResponse>('/notifications/unread');
