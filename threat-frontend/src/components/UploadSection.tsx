@@ -14,6 +14,7 @@ export function UploadSection({
   loading,
   onFileSelect,
   onAnalyze,
+  submitLabel = 'Analyze',
 }: UploadSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
