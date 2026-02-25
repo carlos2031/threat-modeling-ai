@@ -7,24 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-02-23
+
 ### Added
 
-- Runbook `roteiro-apresentacao-10min.md`: roteiro de apresentação em 10 min (fluxo, arquitetura, agentes).
-- Alvos no Makefile raiz: `test`, `test-analyzer`, `test-service`; `test-analysis-flow` usando porta 8002 (Docker).
-
-### Changed
-
-- Docstrings e comentários (tom mais neutro): `threat_modeling_shared/cache.py`, `threat_analysis/agents/base.py`, `threat_analysis/schemas/response.py`.
-- Frontend: ajustes em `UploadSection.tsx`, `AnalysesListPage.tsx` e `threatModelingService.ts`.
-- `docker-compose.yml` e `assets/banner.svg` atualizados.
-- `threat-service`: controller, repository e router de análise; Makefile com `PYTHONPATH` alinhado ao diretório `threat-service`.
-- Runbooks: README da pasta 90-runbooks atualizado; remoção de referências a runbooks antigos.
-
-### Removed
-
-- Runbooks: `plano-validacao-hackaton.md`, `roteiro-apresentacao-prototipo1-prototipo2.md`, `auditoria-textos-ia.md`, `revisao-codigo-doc.md`.
-
-### Fixed
-
-- threat-service testes: `conftest.py` com `dependency_overrides` em vez de monkeypatch; `test_main.py` sem `_db_check`, lifespan com mocks; `test_config.py` assert de `upload_dir` para `Path("media")`; `test_analysis_processing_service.py` mocks com `is_done`/`is_failed`/`is_open` e patch de `httpx` no módulo correto.
-- Docstring do pacote de testes do threat-service: referência a "threat-service" em vez de "threat-modeling-api".
+- **Automated threat analysis** of cloud architecture diagrams using multimodal LLMs (Gemini, OpenAI, or Ollama with automatic fallback).
+- **STRIDE methodology**: threat identification per component and connection (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege).
+- **DREAD scoring**: per-threat scores for Damage, Reproducibility, Exploitability, Affected users, and Discoverability; aggregate risk score (0–10) and risk level (LOW, MEDIUM, HIGH, CRITICAL).
+- **Pipeline**: Guardrail (architecture-diagram validation) → DiagramAgent (components, connections, trust boundaries) → StrideAgent (STRIDE threats, optional RAG) → DreadAgent (DREAD scores).
+- **Upload** of architecture diagrams (PNG, JPEG, WebP, GIF) via REST API and web UI.
+- **Asynchronous analysis** with background processing (Celery); results persisted in PostgreSQL.
+- **Real-time notifications** when analyses complete.
+- **Analyses list** with filters, thumbnails, and delete-with-confirmation.
+- **RAG (ChromaDB)** for STRIDE context and mitigation suggestions.
+- **REST API** (FastAPI): threat-service orchestrator (port 8000), threat-analyzer pipeline (port 8002); OpenAPI and Postman collections.
+- **Web frontend** (React, Vite, Tailwind, Framer Motion): dark theme, responsive layout, upload with preview, analysis detail view.
+- **Docker Compose** stack: frontend, threat-service, threat-analyzer, PostgreSQL, Redis, Celery worker and beat.
