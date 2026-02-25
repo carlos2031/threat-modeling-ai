@@ -94,16 +94,34 @@ CORS_ORIGINS=https://seu-dominio.com,http://localhost:80
 2. Aguarde o build das imagens (threat-analyzer, threat-service, threat-frontend) e o início dos containers.
 3. Verifique os logs em caso de erro.
 
-### Passo 6: Expor o frontend (domínio e proxy)
+### Passo 6: Acessar o frontend (porta e domínio)
 
-O EasyPanel usa Traefik como proxy reverso. Para expor o frontend:
+**Porta do frontend:** O nginx dentro do container escuta na **porta 80**. O compose expõe a **porta 8080** no host.
 
-1. No EasyPanel, localize o serviço **threat-frontend** (ou o container correspondente).
-2. Adicione um **domínio** ao serviço (ex.: `threat-modeling.seudominio.com`).
-3. Configure a **porta do proxy** como **80**.
-4. O EasyPanel configurará HTTPS automaticamente via Let's Encrypt.
+#### Opção A: Acesso direto por IP e porta
 
-> **Nota:** Se estiver usando apenas o Dockge (fora do EasyPanel), você precisará configurar um proxy reverso (Nginx, Traefik ou Caddy) apontando para a porta 80 do container `threat-frontend`.
+Após o deploy, acesse:
+```
+http://SEU_IP_OU_DOMINIO:8080
+```
+
+Ex.: `http://192.168.1.100:8080` ou `http://meuservidor.com:8080`
+
+**Firewall:** Libere a porta 8080 no firewall do servidor (UFW, iptables ou painel do provedor).
+
+#### Opção B: Configurar domínio com HTTPS (EasyPanel)
+
+1. No EasyPanel, abra o **projeto** onde o stack está (ex.: "fiap" → "hackathon-fiap").
+2. Localize o serviço **threat-frontend** na lista de serviços.
+3. Clique no serviço e vá em **Domains** ou **Domínios**.
+4. Adicione seu domínio (ex.: `threat-modeling.seudominio.com`).
+5. Configure a **porta do proxy** como **80** (porta interna do nginx).
+6. O EasyPanel configurará HTTPS automaticamente via Let's Encrypt.
+7. Aponte o DNS do domínio para o IP do servidor (registro A ou CNAME).
+
+#### Opção C: Usando apenas Dockge (sem EasyPanel)
+
+Configure um proxy reverso (Nginx, Traefik ou Caddy) apontando para `localhost:8080` ou para o container `threat-frontend` na rede Docker.
 
 ### Passo 7: (Opcional) Ollama e modelos de visão
 
