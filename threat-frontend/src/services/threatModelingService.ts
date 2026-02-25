@@ -34,8 +34,8 @@ export async function createAnalysis(file: File): Promise<AnalysisCreateResponse
 // List analyses
 export async function listAnalyses(status?: AnalysisStatus): Promise<AnalysisListItem[]> {
   const params = status ? { status_filter: status } : {};
-  const response = await api.get<AnalysisListItem[]>('/analyses', { params });
-  return Array.isArray(response.data) ? response.data : [];
+  const response = await api.get<{ items: AnalysisListItem[] }>('/analyses', { params });
+  return Array.isArray(response.data.items) ? response.data.items : [];
 }
 
 // Get analysis detail
