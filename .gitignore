@@ -103,3 +103,6 @@ threat-analyzer/app/rag_data/*
 .langchain_cache/
 .langchain_cache.db
 *.cache.db
+
+# Celery beat schedule (runtime artifact)
+threat-service/celerybeat-schedule
