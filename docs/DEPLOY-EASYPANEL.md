@@ -96,18 +96,18 @@ CORS_ORIGINS=https://seu-dominio.com,http://localhost:80
 
 ### Passo 6: Acessar o frontend (porta e domínio)
 
-**Porta do frontend:** O nginx dentro do container escuta na **porta 80**. O compose expõe a **porta 8080** no host.
+**Porta do frontend:** O nginx dentro do container escuta na **porta 80**. O compose expõe a **porta 8888** no host.
 
 #### Opção A: Acesso direto por IP e porta
 
 Após o deploy, acesse:
 ```
-http://SEU_IP_OU_DOMINIO:8080
+http://SEU_IP_OU_DOMINIO:8888
 ```
 
-Ex.: `http://192.168.1.100:8080` ou `http://meuservidor.com:8080`
+Ex.: `http://192.168.1.100:8888` ou `http://meuservidor.com:8888`
 
-**Firewall:** Libere a porta 8080 no firewall do servidor (UFW, iptables ou painel do provedor).
+**Firewall:** Libere a porta 8888 no firewall do servidor (UFW, iptables ou painel do provedor).
 
 #### Opção B: Configurar domínio com HTTPS (EasyPanel)
 
@@ -121,7 +121,7 @@ Ex.: `http://192.168.1.100:8080` ou `http://meuservidor.com:8080`
 
 #### Opção C: Usando apenas Dockge (sem EasyPanel)
 
-Configure um proxy reverso (Nginx, Traefik ou Caddy) apontando para `localhost:8080` ou para o container `threat-frontend` na rede Docker.
+Configure um proxy reverso (Nginx, Traefik ou Caddy) apontando para `localhost:8888` ou para o container `threat-frontend` na rede Docker.
 
 ### Passo 7: (Opcional) Ollama e modelos de visão
 

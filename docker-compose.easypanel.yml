@@ -108,7 +108,7 @@ services:
       dockerfile: threat-frontend/Dockerfile
       target: runtime
     ports:
-      - "8080:80"  # Acesso direto: http://IP:8080 (ou configure domínio no EasyPanel)
+      - "8888:80"  # Acesso direto: http://IP:8888 (ou configure domínio no EasyPanel)
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 30s
