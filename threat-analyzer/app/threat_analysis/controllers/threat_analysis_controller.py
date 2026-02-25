@@ -21,16 +21,12 @@ class ThreatAnalysisController:
         self,
         image_bytes: bytes,
         content_type: str | None = None,
-        confidence: float | None = None,
-        iou: float | None = None,
     ) -> AnalysisResponse:
         """Execute full threat analysis on an architecture diagram.
 
         Args:
             image_bytes: Raw image content.
             content_type: MIME type of the upload (e.g. image/png). Validated against allowed_image_types.
-            confidence: Optional detection confidence threshold (for future YOLO).
-            iou: Optional IoU threshold (for future YOLO).
 
         Returns:
             Complete analysis response with components, threats, and risk.
@@ -41,12 +37,7 @@ class ThreatAnalysisController:
         """
         self._validate_input(image_bytes, content_type)
 
-        logger.info(
-            "Running analysis: size=%d bytes, confidence=%s, iou=%s",
-            len(image_bytes),
-            confidence,
-            iou,
-        )
+        logger.info("Running analysis: size=%d bytes", len(image_bytes))
 
         result = await self._service.run_full_analysis(image_bytes)
         return result
