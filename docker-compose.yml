@@ -49,6 +49,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
       ANALYZER_URL: ${ANALYZER_URL}
+      UPLOAD_DIR: uploads
     volumes:
       - ./threat-service:/app
       - uploads_data:/app/uploads
@@ -78,6 +79,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
       ANALYZER_URL: ${ANALYZER_URL}
+      UPLOAD_DIR: uploads
     volumes:
       - ./threat-service:/app
       - uploads_data:/app/uploads

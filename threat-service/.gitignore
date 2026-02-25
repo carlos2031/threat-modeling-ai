@@ -1,5 +1,6 @@
 # Media and uploads (generated content)
 media/
+uploads/
 
 # Python
 __pycache__/

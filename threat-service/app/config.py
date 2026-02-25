@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     # Database: from shared (env DATABASE_URL). Empty = service does not use DB.
     database_url: str = "postgresql://postgres:postgres@localhost:5432/threat_modeling"
 
-    # File storage (media/ ignored by git)
-    upload_dir: Path = Path("media")
+    # File storage (UPLOAD_DIR=uploads para Docker; media/ local)
+    upload_dir: Path = Path("uploads")
     max_upload_size_mb: int = 10
 
     # threat-analyzer service URL (called by Celery worker)

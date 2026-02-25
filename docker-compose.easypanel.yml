@@ -49,6 +49,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
       ANALYZER_URL: http://threat-analyzer:8000
+      UPLOAD_DIR: uploads
     volumes:
       - uploads_data:/app/uploads
     healthcheck:
@@ -76,6 +77,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
       ANALYZER_URL: http://threat-analyzer:8000
+      UPLOAD_DIR: uploads
     volumes:
       - uploads_data:/app/uploads
     depends_on:
