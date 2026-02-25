@@ -18,19 +18,22 @@ def is_error_result(result: dict[str, Any]) -> bool:
 
 
 def _validation_check(
-    validator: Callable[[dict[str, Any]], bool],
-    result: dict[str, Any],
+    validator: Callable[[Any], bool],
+    result: Any,
     conn_name: str,
-) -> tuple[bool, dict[str, Any]]:
+) -> tuple[bool, Any]:
     """Run validator on result; return (True, result) on success, (False, err_info) on failure.
 
     If validator raises, the exception propagates (caught by caller's except).
     """
     if validator(result):
         return True, result
-    err_info = (
-        result if isinstance(result.get("error"), str) else {"error": str(result)}
-    )
+    if isinstance(result, dict):
+        err_info = (
+            result if isinstance(result.get("error"), str) else {"error": str(result)}
+        )
+    else:
+        err_info = {"error": f"Validation failed for result type {type(result).__name__}"}
     return False, {"engine": conn_name, **err_info}
 
 

@@ -53,7 +53,9 @@ class OpenAIConnection(LLMConnection):
                 "service": self.name,
             }
         text = text.strip().replace("```json", "").replace("```", "").strip()
-        for start, end in [("{", "}"), ("[", "]")]:
+        pairs = [("{", "}"), ("[", "]")]
+        pairs.sort(key=lambda p: (text.find(p[0]) if text.find(p[0]) != -1 else float("inf")))
+        for start, end in pairs:
             idx = text.find(start)
             if idx != -1:
                 depth = 0
