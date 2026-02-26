@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Threat deduplication: only one entry per (threat_type, normalized description) in analysis results; duplicate STRIDE threats from the LLM are dropped.
+- Script `scripts/clear_and_run_test_analyses.py`: clears all analyses via threat-service API and runs analyses for `test-assets/diagrama-aws.png` and `test-assets/diagrama-azure.png`.
+
+### Changed
+
+- Deploy instructions moved to private context (cursor-multiagent-system `config/cicd/projects/threat-modeling-ai.md`); `docs/DEPLOY_VPS.md` removed from repo.
+
+### Fixed
+
+- Duplicate vulnerabilities (e.g. repeated "Information Disclosure") no longer appear multiple times in the analyses list; each distinct threat type + description is stored once.
+
 ## [1.0.0] - 2025-02-23
 
 ### Added

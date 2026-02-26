@@ -1,5 +1,6 @@
 """Threat Analysis service orchestrating the analysis pipeline."""
 
+import re
 import time
 from functools import lru_cache
 from typing import Any
@@ -174,18 +175,39 @@ class ThreatModelService:
                 logger.warning("Failed to parse connection: %s", str(e))
         return result
 
+    @staticmethod
+    def _threat_dedup_key(threat: dict[str, Any]) -> tuple[str, str]:
+        """Build a key for deduplication: one entry per (threat_type, description) normalizado."""
+        threat_type = (threat.get("threat_type") or "Unknown").strip()
+        if threat_type:
+            threat_type = threat_type.title()
+        desc = (threat.get("description") or "").strip().lower()
+        desc = re.sub(r"\s+", " ", desc)[:500]
+        return (threat_type, desc)
+
     def _parse_threats(self, threats: list[dict[str, Any]]) -> list[Threat]:
-        """Parse raw threat data into schema objects.
+        """Parse raw threat data into schema objects, removing duplicates.
+
+        Only one threat per (threat_type, normalized description) is kept;
+        duplicates from the LLM are dropped so each vulnerability appears once.
 
         Args:
             threats: Raw threat dictionaries from STRIDE/DREAD analysis.
 
         Returns:
-            List of validated Threat objects.
+            List of validated Threat objects, deduplicated.
         """
+        seen: set[tuple[str, str]] = set()
         result = []
         for threat in threats:
             try:
+                key = self._threat_dedup_key(threat)
+                if key in seen:
+                    logger.debug(
+                        "Dropping duplicate threat: %s - %s", key[0], key[1][:80]
+                    )
+                    continue
+                seen.add(key)
                 result.append(
                     Threat(
                         component_id=threat.get("component_id", "unknown"),
@@ -198,6 +220,8 @@ class ThreatModelService:
                 )
             except Exception as e:
                 logger.warning("Failed to parse threat: %s", str(e))
+        if len(threats) != len(result):
+            logger.info("Deduplicated threats: %d -> %d", len(threats), len(result))
         return result
 
 

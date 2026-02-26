@@ -21,7 +21,8 @@ help:
 	@echo ""
 	@echo "RUN (Docker):"
 	@echo "  make run                - Sobe a aplicacao com logs no terminal"
-	@echo "  make run-detached       - Sobe a aplicacao em background (producao)"
+	@echo "  make run-detached       - Sobe a aplicacao em background"
+	@echo "  make run-prod           - Sobe em modo producao (docker-compose.prod.yml; rede portfolio-net)"
 	@echo ""
 	@echo "TESTES UNITARIOS:"
 	@echo "  make test                - Roda testes do threat-analyzer e do threat-service"
@@ -65,6 +66,10 @@ run:
 run-detached:
 	cd $(PROJECT_ROOT) && docker compose --env-file $(COMPOSE_ENV) up --build -d
 
+# Produção (VPS): requer configs/.env.prod e rede portfolio-net (subir portfolio-suite antes)
+run-prod:
+	cd $(PROJECT_ROOT) && docker compose -f docker-compose.prod.yml --env-file configs/.env.prod up -d --build
+
 test: test-analyzer test-service
 	@echo "Todos os testes passaram."
 
@@ -81,4 +86,4 @@ test-analysis-flow:
 	@if [ -z "$(IMAGE)" ]; then echo "Passe IMAGE=caminho/para/diagrama.png"; exit 1; fi
 	PYTHONPATH=$(PROJECT_ROOT) $(PYTHON) scripts/run_analysis_flow.py --base-url http://localhost:8002 --image $(IMAGE)
 
-.PHONY: help setup setup-backend setup-frontend install-local-llm run run-detached test test-analyzer test-service test-analysis-flow
+.PHONY: help setup setup-backend setup-frontend install-local-llm run run-detached run-prod test test-analyzer test-service test-analysis-flow

@@ -9,6 +9,12 @@ FROM node:20-slim AS build
 
 WORKDIR /app
 
+# Base path e prefixo da API para deploy sob /threat-modeling-ai/ (ex.: portfolio VPS)
+ARG VITE_BASE_PATH=/
+ARG VITE_API_PREFIX=/api/v1
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
+ENV VITE_API_PREFIX=$VITE_API_PREFIX
+
 COPY threat-frontend/package*.json ./
 RUN npm ci
 

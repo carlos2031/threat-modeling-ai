@@ -1,0 +1,150 @@
+# Threat Modeling AI - Produção (VPS pessoal - 69.62.98.94)
+# Uso: docker compose -f docker-compose.prod.yml --env-file configs/.env.prod up -d --build
+# Requer configs/.env.prod (copiar de configs/.env.example e preencher; NUNCA commitar).
+# Usa a rede portfolio-net (criada pelo portfolio-suite) para o nginx do portfolio fazer proxy em /threat-modeling-ai/.
+# Subir o portfolio-suite antes para a rede existir.
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    env_file:
+      - ./configs/.env.prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - threat-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-threat_modeling}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - threat-net
+    restart: unless-stopped
+
+  threat-analyzer:
+    build:
+      context: .
+      dockerfile: threat-analyzer/Dockerfile
+      target: runtime
+    env_file:
+      - ./configs/.env.prod
+    networks:
+      - threat-net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 5s
+      retries: 3
+    restart: unless-stopped
+
+  threat-service:
+    container_name: threat-modeling-service
+    build:
+      context: .
+      dockerfile: threat-service/Dockerfile
+      target: runtime
+    env_file:
+      - ./configs/.env.prod
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      ANALYZER_URL: http://threat-analyzer:8000
+      UPLOAD_DIR: /app/uploads
+      CORS_ORIGINS: https://lucasbiason.com,http://lucasbiason.com,https://www.lucasbiason.com
+    volumes:
+      - ./data/uploads:/app/uploads
+    networks:
+      - threat-net
+      - portfolio-net
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      threat-analyzer: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: threat-service/Dockerfile
+      target: runtime
+    env_file:
+      - ./configs/.env.prod
+    entrypoint: []
+    command: celery -A app.celery_app worker -l info
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      ANALYZER_URL: http://threat-analyzer:8000
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - ./data/uploads:/app/uploads
+    networks:
+      - threat-net
+    depends_on:
+      - threat-service
+    restart: unless-stopped
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: threat-service/Dockerfile
+      target: runtime
+    env_file:
+      - ./configs/.env.prod
+    entrypoint: []
+    command: celery -A app.celery_app beat -l info -s /tmp/celerybeat-schedule
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      ANALYZER_URL: http://threat-analyzer:8000
+    networks:
+      - threat-net
+    depends_on:
+      - celery-worker
+    restart: unless-stopped
+
+  threat-frontend:
+    container_name: threat-modeling-frontend
+    build:
+      context: .
+      dockerfile: threat-frontend/Dockerfile
+      target: runtime
+      args:
+        - VITE_BASE_PATH=/threat-modeling-ai/
+        - VITE_API_PREFIX=/threat-modeling-ai/api/v1
+    networks:
+      - threat-net
+      - portfolio-net
+    depends_on:
+      - threat-service
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  threat-net:
+    driver: bridge
+  portfolio-net:
+    external: true

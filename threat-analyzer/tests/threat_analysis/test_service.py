@@ -107,6 +107,41 @@ class TestThreatModelService:
         assert len(result) == 1
         assert result[0].component_id == "c1"
 
+    def test_parse_threats_deduplicates_by_type_and_description(self):
+        """Duplicate threats (same threat_type + normalized description) are kept only once."""
+        settings = get_settings()
+        service = ThreatModelService(settings)
+        duplicate_threat = {
+            "component_id": "c1",
+            "threat_type": "Information Disclosure",
+            "description": "Data in transit could be intercepted if HTTPS is not properly configured.",
+            "mitigation": "Ensure TLS is used and certificates are valid.",
+            "dread_score": 7.4,
+            "dread_details": None,
+        }
+        threats = [
+            duplicate_threat.copy(),
+            duplicate_threat.copy(),
+            duplicate_threat.copy(),
+        ]
+        result = service._parse_threats(threats)
+        assert len(result) == 1
+        assert result[0].threat_type == "Information Disclosure"
+        assert result[0].dread_score == 7.4
+
+    def test_threat_dedup_key_normalizes_type_and_description(self):
+        """_threat_dedup_key normalizes threat_type and description for consistent dedup."""
+        key1 = ThreatModelService._threat_dedup_key(
+            {
+                "threat_type": "  information disclosure  ",
+                "description": "  Foo   Bar  ",
+            }
+        )
+        key2 = ThreatModelService._threat_dedup_key(
+            {"threat_type": "Information Disclosure", "description": "foo bar"}
+        )
+        assert key1 == key2
+
     def test_parse_connections_logs_warning_on_validation_error(self, caplog):
         """Trigger except in _parse_connections (invalid Connection data)."""
         settings = get_settings()
