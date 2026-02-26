@@ -1,17 +1,27 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import type { AnalysisResponse } from '../types/analysis';
-import { RISK_LEVEL_CONFIG } from '../constants/riskLevels';
-import { ThreatCard } from './ThreatCard';
-import { Activity, Cpu, Shield } from 'lucide-react';
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import type { AnalysisResponse, Threat } from "../types/analysis";
+import { RISK_LEVEL_CONFIG } from "../constants/riskLevels";
+import { ThreatCard } from "./ThreatCard";
+import { Activity, Cpu, Shield } from "lucide-react";
 
 interface ResultsSectionProps {
   analysis: AnalysisResponse;
 }
 
+function sortThreatsByScore(threats: Threat[]): Threat[] {
+  return [...threats].sort(
+    (a, b) => (b.dread_score ?? 0) - (a.dread_score ?? 0),
+  );
+}
+
 export function ResultsSection({ analysis }: ResultsSectionProps) {
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set([0]));
   const riskConfig = RISK_LEVEL_CONFIG[analysis.risk_level];
+  const threatsByScore = useMemo(
+    () => sortThreatsByScore(analysis.threats),
+    [analysis.threats],
+  );
 
   const toggleExpanded = (index: number) => {
     setExpandedItems((prev) => {
@@ -59,7 +69,7 @@ export function ResultsSection({ analysis }: ResultsSectionProps) {
           <StatCard
             icon={<Shield className="w-4 h-4" />}
             label="Model"
-            value={analysis.model_used.split('/')[0]}
+            value={analysis.model_used.split("/")[0]}
           />
         </div>
 
@@ -76,13 +86,13 @@ export function ResultsSection({ analysis }: ResultsSectionProps) {
           <Activity className="w-5 h-5" /> Identified Threats
         </h2>
 
-        {analysis.threats.length === 0 ? (
+        {threatsByScore.length === 0 ? (
           <p className="text-gray-400 text-center py-8">
             No threats identified in this diagram.
           </p>
         ) : (
           <div className="space-y-3">
-            {analysis.threats.map((threat, i) => (
+            {threatsByScore.map((threat, i) => (
               <ThreatCard
                 key={i}
                 threat={threat}

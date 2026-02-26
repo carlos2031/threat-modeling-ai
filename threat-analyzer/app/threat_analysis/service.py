@@ -101,11 +101,16 @@ class ThreatModelService:
             processing_time,
         )
 
+        parsed = self._parse_threats(scored_threats)
+        parsed.sort(
+            key=lambda t: (t.dread_score if t.dread_score is not None else 0.0),
+            reverse=True,
+        )
         return AnalysisResponse(
             model_used=diagram_data.get("model", "Unknown"),
             components=self._parse_components(diagram_data.get("components", [])),
             connections=self._parse_connections(diagram_data.get("connections", [])),
-            threats=self._parse_threats(scored_threats),
+            threats=parsed,
             risk_score=round(risk_score, 2),
             risk_level=risk_level,
             processing_time=processing_time,
