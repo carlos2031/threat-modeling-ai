@@ -5,7 +5,7 @@ name: Deploy to VPS (personal)
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -23,8 +23,8 @@ jobs:
             set -e
             export PATH="/usr/local/bin:$PATH"
             cd /opt/projects/threat-modeling-ai || { mkdir -p /opt/projects && cd /opt/projects && git clone https://github.com/LucasBiason/threat-modeling-ai.git && cd threat-modeling-ai; }
-            git fetch origin main
-            git reset --hard origin/main
+            git fetch origin master
+            git reset --hard origin/master
             if [ -f configs/.env.prod ]; then
               docker compose -f docker-compose.prod.yml --env-file configs/.env.prod up -d --build
             else
