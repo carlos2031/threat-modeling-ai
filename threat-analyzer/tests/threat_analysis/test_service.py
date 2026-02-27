@@ -119,11 +119,7 @@ class TestThreatModelService:
             "dread_score": 7.4,
             "dread_details": None,
         }
-        threats = [
-            duplicate_threat.copy(),
-            duplicate_threat.copy(),
-            duplicate_threat.copy(),
-        ]
+        threats = [duplicate_threat.copy(), duplicate_threat.copy(), duplicate_threat.copy()]
         result = service._parse_threats(threats)
         assert len(result) == 1
         assert result[0].threat_type == "Information Disclosure"
@@ -132,10 +128,7 @@ class TestThreatModelService:
     def test_threat_dedup_key_normalizes_type_and_description(self):
         """_threat_dedup_key normalizes threat_type and description for consistent dedup."""
         key1 = ThreatModelService._threat_dedup_key(
-            {
-                "threat_type": "  information disclosure  ",
-                "description": "  Foo   Bar  ",
-            }
+            {"threat_type": "  information disclosure  ", "description": "  Foo   Bar  "}
         )
         key2 = ThreatModelService._threat_dedup_key(
             {"threat_type": "Information Disclosure", "description": "foo bar"}

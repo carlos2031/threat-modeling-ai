@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  base: process.env.VITE_BASE_PATH ?? '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -21,6 +22,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-    base: process.env.VITE_BASE_PATH ?? '/',
   },
 });

@@ -208,9 +208,7 @@ class ThreatModelService:
             try:
                 key = self._threat_dedup_key(threat)
                 if key in seen:
-                    logger.debug(
-                        "Dropping duplicate threat: %s - %s", key[0], key[1][:80]
-                    )
+                    logger.debug("Dropping duplicate threat: %s - %s", key[0], key[1][:80])
                     continue
                 seen.add(key)
                 result.append(
