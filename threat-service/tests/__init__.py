@@ -1,1 +1,1 @@
-"""Tests for threat-modeling-api."""
+"""Tests for threat-service (orchestrator)."""

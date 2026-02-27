@@ -20,10 +20,7 @@ class BaseAgent(ABC):
 
     @abstractmethod
     async def analyze(self, *args: Any, **kwargs: Any) -> Any:
-        """Run the agent's analysis.
-
-        Must be implemented by subclasses.
-        """
+        """Run the agent's analysis. Implemented by subclasses."""
         pass  # pragma: no cover
 
     def parse_json_response(

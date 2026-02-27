@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle, LayoutList } from 'lucide-react';
-import { listAnalyses, getAnalysisImageUrl } from '../services/threatModelingService';
+import { Loader2, CheckCircle, XCircle, Clock, AlertTriangle, LayoutList, Trash2 } from 'lucide-react';
+import { listAnalyses, getAnalysisImageUrl, deleteAnalysis } from '../services/threatModelingService';
 import type { AnalysisListItem, AnalysisStatus } from '../types/analysis';
 import { RISK_LEVEL_CONFIG } from '../constants/riskLevels';
 
@@ -22,19 +22,39 @@ const STATUS_CONFIG: Record<
 export function AnalysesListPage() {
   const [analyses, setAnalyses] = useState<AnalysisListItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmDiscard, setConfirmDiscard] = useState<AnalysisListItem | null>(null);
+  const [discardingId, setDiscardingId] = useState<string | null>(null);
 
-  const fetchAnalyses = () => {
+  const fetchAnalyses = useCallback(() => {
     setLoading(true);
     listAnalyses()
       .then(setAnalyses)
       .finally(() => setLoading(false));
-  };
+  }, []);
 
   useEffect(() => {
     fetchAnalyses();
     const interval = setInterval(fetchAnalyses, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchAnalyses]);
+
+  const handleDiscardClick = (e: React.MouseEvent, a: AnalysisListItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setConfirmDiscard(a);
+  };
+
+  const handleConfirmDiscard = async () => {
+    if (!confirmDiscard) return;
+    setDiscardingId(confirmDiscard.id);
+    try {
+      await deleteAnalysis(confirmDiscard.id);
+      setConfirmDiscard(null);
+      fetchAnalyses();
+    } finally {
+      setDiscardingId(null);
+    }
+  };
 
   if (loading && analyses.length === 0) {
     return (
@@ -63,61 +83,120 @@ export function AnalysesListPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {analyses.map((a) => {
-            const statusCfg = STATUS_CONFIG[a.status];
-            const StatusIcon = statusCfg.icon;
-            const riskCfg = a.risk_level ? RISK_LEVEL_CONFIG[a.risk_level] : null;
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {analyses.map((a) => {
+              const statusCfg = STATUS_CONFIG[a.status];
+              const StatusIcon = statusCfg.icon;
+              const riskCfg = a.risk_level ? RISK_LEVEL_CONFIG[a.risk_level] : null;
 
-            return (
-              <Link
-                key={a.id}
-                to={`/analyses/${a.id}`}
-                className="group glass-card !p-0 overflow-hidden hover:border-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5"
-              >
-                <div className="aspect-video bg-slate-900/80 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={getAnalysisImageUrl(a.id)}
-                    alt={a.code}
-                    className="w-full h-full object-contain p-2 opacity-80 group-hover:opacity-100 transition-opacity"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-
-                <div className="p-4 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-mono text-sm text-indigo-400 font-medium">{a.code}</span>
-                    <span
-                      className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                        statusCfg.className
-                      } ${a.status === 'PROCESSANDO' ? 'animate-pulse' : ''}`}
-                    >
-                      <StatusIcon className={`w-3 h-3 ${a.status === 'PROCESSANDO' ? 'animate-spin' : ''}`} />
-                      {statusCfg.label}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-gray-500">
-                    {new Date(a.created_at).toLocaleString('pt-BR')}
-                  </p>
-
-                  {a.status === 'ANALISADO' && riskCfg && (
-                    <div className="flex items-center gap-2 pt-1">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${riskCfg.bgColor} ${riskCfg.textColor}`}
-                      >
-                        {a.risk_level} ({a.risk_score?.toFixed(1)}/10)
-                      </span>
-                      <span className="text-xs text-gray-500">{a.threat_count} ameaça{(a.threat_count ?? 0) !== 1 ? 's' : ''}</span>
+              return (
+                <div
+                  key={a.id}
+                  className="group glass-card !p-0 overflow-hidden hover:border-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5 relative"
+                >
+                  <Link
+                    to={`/analyses/${a.id}`}
+                    className="block"
+                  >
+                    <div className="aspect-video bg-slate-900/80 flex items-center justify-center overflow-hidden">
+                      <img
+                        src={getAnalysisImageUrl(a.id)}
+                        alt={a.code}
+                        className="w-full h-full object-contain p-2 opacity-80 group-hover:opacity-100 transition-opacity"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
                     </div>
-                  )}
+
+                    <div className="p-4 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-mono text-sm text-indigo-400 font-medium">{a.code}</span>
+                        <span
+                          className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                            statusCfg.className
+                          } ${a.status === 'PROCESSANDO' ? 'animate-pulse' : ''}`}
+                        >
+                          <StatusIcon className={`w-3 h-3 ${a.status === 'PROCESSANDO' ? 'animate-spin' : ''}`} />
+                          {statusCfg.label}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-gray-500">
+                        {new Date(a.created_at).toLocaleString('pt-BR')}
+                      </p>
+
+                      {a.status === 'ANALISADO' && riskCfg && (
+                        <div className="flex items-center gap-2 pt-1">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${riskCfg.bgColor} ${riskCfg.textColor}`}
+                          >
+                            {a.risk_level} ({a.risk_score?.toFixed(1)}/10)
+                          </span>
+                          <span className="text-xs text-gray-500">{a.threat_count} ameaça{(a.threat_count ?? 0) !== 1 ? 's' : ''}</span>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={(e) => handleDiscardClick(e, a)}
+                    className="absolute top-2 right-2 p-2 rounded-lg bg-slate-900/90 hover:bg-red-500/90 text-gray-400 hover:text-white transition-colors z-10"
+                    title="Descartar análise"
+                    aria-label="Descartar análise"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-              </Link>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {confirmDiscard && (
+            <div
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-discard-title"
+            >
+              <div className="glass-card max-w-md w-full space-y-4">
+                <h2 id="confirm-discard-title" className="text-lg font-semibold text-white">
+                  Descartar análise?
+                </h2>
+                <p className="text-gray-400 text-sm">
+                  A análise <strong className="text-indigo-300">{confirmDiscard.code}</strong> será removida permanentemente.
+                  Se estiver em processamento, ele será interrompido. Esta ação não pode ser desfeita.
+                </p>
+                <div className="flex gap-3 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDiscard(null)}
+                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-gray-300 text-sm font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDiscard}
+                    disabled={discardingId === confirmDiscard.id}
+                    className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {discardingId === confirmDiscard.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Removendo...
+                      </>
+                    ) : (
+                      'Descartar'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-"""Pytest fixtures for threat-modeling-api tests."""
+"""Pytest fixtures for threat-service tests."""
 
 import os
 import sys
@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
-# Ensure threat-modeling-api/app is on path (must be before app imports)
+# Ensure threat-service/app is on path (must be before app imports)
 _root = Path(__file__).resolve().parent.parent
 if str(_root) not in (os.environ.get("PYTHONPATH") or "").split(os.pathsep):
     sys.path.insert(0, str(_root))
@@ -98,7 +98,7 @@ def sample_png_bytes():
 
 @pytest.fixture
 def client_no_db(monkeypatch):
-    """Test client without PostgreSQL (mocks engine/get_db for router unit tests)."""
+    """Test client without PostgreSQL (dependency override get_db for router unit tests)."""
     from unittest.mock import MagicMock
 
     mock_engine = MagicMock()
@@ -112,7 +112,9 @@ def client_no_db(monkeypatch):
 
     monkeypatch.setattr("app.main.engine", mock_engine)
     monkeypatch.setattr("app.database.engine", mock_engine)
-    monkeypatch.setattr("app.main.get_db", mock_get_db)
-    monkeypatch.setattr("app.database.get_db", mock_get_db)
-    with TestClient(app) as c:
-        yield c
+    app.dependency_overrides[get_db] = mock_get_db
+    try:
+        with TestClient(app) as c:
+            yield c
+    finally:
+        app.dependency_overrides.pop(get_db, None)

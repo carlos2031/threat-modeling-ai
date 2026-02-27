@@ -139,3 +139,11 @@ class AnalysisController:
         if not analysis:
             return None
         return analysis.processing_logs or ""
+
+    def delete_analysis(self, analysis_id: uuid.UUID) -> None:
+        """Remove a análise (e imagem). Levanta 404 se não existir."""
+        if not self._repository.delete(analysis_id):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Analysis not found",
+            )

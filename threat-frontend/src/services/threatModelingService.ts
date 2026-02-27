@@ -11,7 +11,7 @@ import type {
   NotificationsUnreadResponse,
 } from '../types/analysis';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_PREFIX ?? import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -60,6 +60,11 @@ export function getAnalysisImageUrl(id: string): string {
 export async function getAnalysisLogs(id: string): Promise<{ logs: string }> {
   const response = await api.get<{ logs: string }>(`/analyses/${id}/logs`);
   return response.data;
+}
+
+// Delete analysis (irreversible; stops processing if running)
+export async function deleteAnalysis(id: string): Promise<void> {
+  await api.delete(`/analyses/${id}`);
 }
 
 // Notifications

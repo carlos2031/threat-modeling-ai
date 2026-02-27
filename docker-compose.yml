@@ -18,7 +18,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
   threat-analyzer:
     build:
@@ -52,7 +52,7 @@ services:
       UPLOAD_DIR: uploads
     volumes:
       - ./threat-service:/app
-      - uploads_data:/app/uploads
+      - ./data/uploads:/app/uploads
     ports:
       - "8000:8000"
     healthcheck:
@@ -82,7 +82,7 @@ services:
       UPLOAD_DIR: uploads
     volumes:
       - ./threat-service:/app
-      - uploads_data:/app/uploads
+      - ./data/uploads:/app/uploads
     depends_on:
       - postgres
       - redis
@@ -96,7 +96,7 @@ services:
     env_file:
       - ./configs/.env
     entrypoint: []
-    command: celery -A app.celery_app beat -l info
+    command: celery -A app.celery_app beat -l info -s /tmp/celerybeat-schedule
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
@@ -114,7 +114,7 @@ services:
       dockerfile: threat-frontend/Dockerfile
       target: runtime
     ports:
-      - "80:80"
+      - "8081:80"
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:80/"]
       interval: 30s
@@ -138,4 +138,3 @@ services:
 volumes:
   postgres_data:
   ollama_data:
-  uploads_data:

@@ -17,7 +17,7 @@ def test_settings_defaults(monkeypatch):
     assert s.app_name == "Threat Modeling API"
     assert s.app_version == "1.0.0"
     assert "postgresql://" in s.database_url and "threat_modeling" in s.database_url
-    assert s.upload_dir == Path("uploads")
+    assert s.upload_dir == Path("media")
     assert s.max_upload_size_mb == 10
     assert s.analyzer_url == "http://threat-analyzer:8000"
     assert s.redis_url == "redis://localhost:6379/0"

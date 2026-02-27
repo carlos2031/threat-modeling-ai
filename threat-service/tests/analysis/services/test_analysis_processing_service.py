@@ -51,6 +51,9 @@ class TestAnalysisProcessingService:
         a = MagicMock()
         a.status = AnalysisStatus.EM_ABERTO
         a.image_path = "x.png"
+        a.is_done = False
+        a.is_failed = False
+        a.is_open = True
         with patch.object(service._analysis_repo, "get_by_id", return_value=a):
             with patch.object(service._analysis_repo, "get_image_path", return_value=None):
                 result = service.process(uuid.uuid4())
@@ -65,6 +68,9 @@ class TestAnalysisProcessingService:
         a.status = AnalysisStatus.EM_ABERTO
         a.code = "TMA-001"
         a.image_path = "x.png"
+        a.is_done = False
+        a.is_failed = False
+        a.is_open = True
         img_path = MagicMock()
         img_path.exists.return_value = True
         img_path.read_bytes.return_value = b"\x89PNG"
@@ -72,7 +78,7 @@ class TestAnalysisProcessingService:
         analyzer_result = {"threats": [{}], "risk_level": "Médio"}
         with patch.object(service._analysis_repo, "get_by_id", return_value=a):
             with patch.object(service._analysis_repo, "get_image_path", return_value=img_path):
-                with patch("app.analysis.services.analysis_processing_service.httpx") as mock_httpx:
+                with patch("app.analysis.services.analysis_service.httpx") as mock_httpx:
                     resp = MagicMock()
                     resp.raise_for_status = MagicMock()
                     resp.json.return_value = analyzer_result
@@ -89,6 +95,9 @@ class TestAnalysisProcessingService:
         a = MagicMock()
         a.status = AnalysisStatus.EM_ABERTO
         a.image_path = "x.png"
+        a.is_done = False
+        a.is_failed = False
+        a.is_open = True
         img_path = MagicMock()
         img_path.exists.return_value = True
         img_path.read_bytes.return_value = b"\x89PNG"
@@ -103,9 +112,7 @@ class TestAnalysisProcessingService:
             with patch.object(service._analysis_repo, "get_image_path", return_value=img_path):
                 mock_client = MagicMock()
                 mock_client.post.return_value = resp
-                with patch(
-                    "app.analysis.services.analysis_processing_service.httpx.Client"
-                ) as mock_cls:
+                with patch("app.analysis.services.analysis_service.httpx.Client") as mock_cls:
                     mock_cls.return_value.__enter__.return_value = mock_client
                     result = service.process(uuid.uuid4())
         assert "error" in result
@@ -115,6 +122,9 @@ class TestAnalysisProcessingService:
         a = MagicMock()
         a.status = AnalysisStatus.EM_ABERTO
         a.image_path = "x.png"
+        a.is_done = False
+        a.is_failed = False
+        a.is_open = True
         img_path = MagicMock()
         img_path.exists.return_value = True
         img_path.read_bytes.return_value = b"\x89PNG"
@@ -125,9 +135,7 @@ class TestAnalysisProcessingService:
             with patch.object(service._analysis_repo, "get_image_path", return_value=img_path):
                 mock_client = MagicMock()
                 mock_client.post.return_value = resp
-                with patch(
-                    "app.analysis.services.analysis_processing_service.httpx.Client"
-                ) as mock_cls:
+                with patch("app.analysis.services.analysis_service.httpx.Client") as mock_cls:
                     mock_cls.return_value.__enter__.return_value = mock_client
                     result = service.process(uuid.uuid4())
         assert "error" in result

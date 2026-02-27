@@ -1,41 +1,25 @@
 """Tests for app.main."""
 
+import asyncio
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from app.main import _db_check, lifespan
-
-
-def test_db_check_success():
-    """_db_check returns True when DB responds."""
-    mock_db = MagicMock()
-
-    def fake_get_db():
-        try:
-            yield mock_db
-        finally:
-            pass
-
-    with patch("app.main.get_db", fake_get_db):
-        result = _db_check()
-    assert result is True
-    mock_db.execute.assert_called_once()
-    mock_db.close.assert_called_once()
+from app.main import lifespan
 
 
 def test_lifespan():
-    """lifespan context manager creates tables and disposes engine."""
-    import asyncio
-
+    """lifespan creates tables on startup and disposes engine on shutdown."""
     mock_app = MagicMock()
+    mock_engine = MagicMock()
+    mock_create_all = MagicMock()
 
     async def run():
-        with patch("app.main.Base.metadata.create_all") as create_all:
-            with patch("app.main.engine") as engine:
+        with patch("app.main.engine", mock_engine):
+            with patch("app.main.Base.metadata.create_all", mock_create_all):
                 async with lifespan(mock_app):
                     pass
-                create_all.assert_called_once_with(bind=engine)
-                engine.dispose.assert_called_once()
+        mock_create_all.assert_called_once_with(bind=mock_engine)
+        mock_engine.dispose.assert_called_once()
 
     asyncio.run(run())

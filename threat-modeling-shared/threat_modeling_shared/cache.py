@@ -1,4 +1,4 @@
-"""Cache abstraction — backend-agnostic (e.g. Redis). Swap implementation without changing callers."""
+"""Abstração de cache — backend plugável (ex.: Redis)."""
 
 from typing import Any, Protocol
 
@@ -51,5 +51,5 @@ class RedisCacheBackend:
 
 
 def get_cache_backend(redis_url: str = "redis://localhost:6379/0") -> CacheBackend:
-    """Return a Redis cache backend. Swap here to use another implementation."""
+    """Retorna o backend de cache (Redis). Trocar implementação aqui para outro backend."""
     return RedisCacheBackend(redis_url=redis_url)
