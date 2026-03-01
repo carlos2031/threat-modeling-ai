@@ -84,11 +84,24 @@ class AnalysisController:
             for a in analyses
         ]
 
+    @staticmethod
+    def _sort_result_threats_by_score(result: dict | None) -> dict | None:
+        """Ordena threats no result por dread_score (maior primeiro). Não altera o dict original."""
+        if not result or "threats" not in result or not result["threats"]:
+            return result
+        threats = list(result["threats"])
+        threats.sort(
+            key=lambda t: float(t.get("dread_score") or 0),
+            reverse=True,
+        )
+        return {**result, "threats": threats}
+
     def get_analysis(self, analysis_id: uuid.UUID) -> AnalysisDetailResponse | None:
-        """Retorna detail da analysis ou None se não existir."""
+        """Retorna detail da analysis ou None se não existir. Threats no result vêm ordenadas por score."""
         analysis = self._repository.get_by_id(analysis_id)
         if not analysis:
             return None
+        result = self._sort_result_threats_by_score(analysis.result)
         return AnalysisDetailResponse(
             id=str(analysis.id),
             code=analysis.code,
@@ -99,7 +112,7 @@ class AnalysisController:
             image_url=f"/api/v1/analyses/{analysis.id}/image",
             processing_logs=analysis.processing_logs,
             error_message=analysis.error_message,
-            result=analysis.result,
+            result=result,
         )
 
     def get_analysis_or_404(self, analysis_id: uuid.UUID) -> AnalysisDetailResponse:

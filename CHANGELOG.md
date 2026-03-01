@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Deploy instructions moved to private context (cursor-multiagent-system `config/cicd/projects/threat-modeling-ai.md`); `docs/DEPLOY_VPS.md` removed from repo.
+- Frontend supports base path (`VITE_BASE_PATH`) and `BrowserRouter` basename for deployment under `/threat-modeling-ai/` subpath; threat score fallback uses `dread_details` average when `dread_score` is missing.
 
 ### Fixed
 

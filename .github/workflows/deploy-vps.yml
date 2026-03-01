@@ -1,4 +1,4 @@
-# Deploy Threat Modeling AI no VPS PESSOAL (69.62.98.94) — NÃO usar ExpenseIQ/KPI.
+# Deploy Threat Modeling AI no VPS PESSOAL (69.62.98.94)
 # Secrets: VPS_SSH_PRIVATE_KEY (chave para root@69.62.98.94) ou VPS_SSH_PASSWORD.
 
 name: Deploy to VPS (personal)

@@ -27,7 +27,6 @@ API_PREFIX = "/api/v1/analyses"
 def _client():
     try:
         import httpx
-
         return httpx
     except ImportError:
         print("Instale httpx: pip install httpx", file=sys.stderr)
@@ -102,9 +101,7 @@ def get_analysis(base_url: str, analysis_id: str) -> dict | None:
     return r.json()
 
 
-def wait_for_done(
-    base_url: str, analysis_id: str, code: str, max_wait_sec: int = 600
-) -> bool:
+def wait_for_done(base_url: str, analysis_id: str, code: str, max_wait_sec: int = 600) -> bool:
     """Aguarda status ANALISADO ou FALHOU. Retorna True se ANALISADO."""
     start = time.time()
     while (time.time() - start) < max_wait_sec:
@@ -114,9 +111,7 @@ def wait_for_done(
             continue
         status = data.get("status")
         if status == "ANALISADO":
-            print(
-                f"    {code}: concluído (threats: {len((data.get('result') or {}).get('threats', []))})"
-            )
+            print(f"    {code}: concluído (threats: {len((data.get('result') or {}).get('threats', []))})")
             return True
         if status == "FALHOU":
             print(f"    {code}: falhou - {data.get('error_message', '')[:200]}")

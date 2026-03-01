@@ -9,10 +9,24 @@ interface ResultsSectionProps {
   analysis: AnalysisResponse;
 }
 
+function getThreatScore(t: Threat): number {
+  if (t.dread_score != null) return t.dread_score;
+  if (t.dread_details) {
+    const d = t.dread_details;
+    return (
+      (d.damage +
+        d.reproducibility +
+        d.exploitability +
+        d.affected_users +
+        d.discoverability) /
+      5
+    );
+  }
+  return 0;
+}
+
 function sortThreatsByScore(threats: Threat[]): Threat[] {
-  return [...threats].sort(
-    (a, b) => (b.dread_score ?? 0) - (a.dread_score ?? 0),
-  );
+  return [...threats].sort((a, b) => getThreatScore(b) - getThreatScore(a));
 }
 
 export function ResultsSection({ analysis }: ResultsSectionProps) {
